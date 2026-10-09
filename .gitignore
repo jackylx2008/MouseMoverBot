@@ -1,9 +1,23 @@
-*.pyc
-*.pyo
-*.vscode
-*__pycache__
-ui/command.txt
+*.py[cod]
+__pycache__/
+.DS_Store
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.vscode/
+.idea/
+
+# Local environments and machine-specific configuration
+/.venv/
 /venv/
-mousemover/build/
-mousemover/dist/
-mousemover/mousemover.spec
+common.env
+*.env
+!common.env.example
+
+# Runtime/build output
+/logs/
+/build/
+/dist/
+*.spec
+ui/command.txt

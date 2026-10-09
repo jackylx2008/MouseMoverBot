@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mouse-mover"
+version = "2.0.0"
+description = "Cross-platform mouse movement utility for Windows and macOS"
+requires-python = ">=3.10"
+dependencies = [
+  "PyYAML>=6.0.2,<7",
+  "pyobjc-framework-Quartz>=10.3; sys_platform == 'darwin'",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

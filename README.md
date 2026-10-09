@@ -1,73 +1,176 @@
 # Mouse Mover
 
-Mouse movement simulator  
+Mouse Mover 是一个适用于 Windows 11 和 macOS 的桌面鼠标移动工具。它会按设定间隔把指针移动少量像素再移回，用于避免空闲期间触发屏幕保护或自动锁定。
 
-![alt text](https://i.imgur.com/NRVNYZA.png)  
+主要功能：
 
-Mouse Mover is a Python application that can be used to simulate cursor movement. This project is heavily inspired by the infamous [Mouse Jiggler](https://mouse-jiggler.en.uptodown.com/windows) application. One of the main purposes of using this application is to prevent screen saver or auto-lock in the case where you can't disable them.
+- 固定或随机移动距离；
+- 固定或随机移动间隔；
+- 按时、分、秒定时停止；
+- 可随时安全取消，等待会立即响应停止信号；
+- 实时状态、耗时和界面日志；
+- Windows 使用系统 Win32 API，macOS 使用 Quartz API；
+- 后台线程不直接操作 GUI 控件。
 
-## Download  
-Download the executable for Windows from [Sourceforge](https://sourceforge.net/projects/python-mouse-mover/) or compile the program yourself by following the guide below.
-  
-  
-## Dependencies Installation
+> 请遵守所在组织的设备管理和信息安全规定。本工具不应被用于规避强制安全策略。
 
-To install the dependencies, navigate to the project directory and execute this command:
+## 支持环境
 
-```bash
-pip install -r requirements.txt
+- Windows 11，Python 3.10 或更新版本；
+- macOS，Python 3.10 或更新版本；
+- Python 必须包含 Tkinter。Python.org 的 Windows/macOS 安装包通常已经包含它。
+
+Linux 不是当前验收目标，程序会明确报告不支持，而不会静默调用错误的平台实现。
+
+## 当前项目状态
+
+当前版本为 `2.0.0`，跨平台重构已经完成。2026-10-09 在 macOS 上完成了以下实际验证：
+
+- Python 3.14.8、Tk 9.1 窗口启动；
+- Quartz 后端和辅助功能权限检查；
+- 鼠标短距离移动并复位；
+- 开始、取消、定时和线程事件的自动化测试；
+- 隐藏窗口构建、静态检查、依赖检查和 wheel 构建。
+
+Windows 11 的 Win32 后端已有自动化模拟测试，但仍需要在真实 Windows 11 设备上完成 GUI、系统缩放、多显示器和打包产物验收。详细进度见 [`docs/PROJECT_STATUS.md`](docs/PROJECT_STATUS.md)。
+
+## 安装
+
+项目虚拟环境不能在 Windows 和 macOS 间同步复用；请在每台机器上分别创建。
+
+### Windows 11（PowerShell）
+
+```powershell
+py -3 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
 
-## Usage
+Windows 鼠标控制仅使用 Python 标准库，不再依赖 `pywin32`。
 
-To use Mouse  Mover, navigate to the `mousemover` directory within the project directory and execute this command:
-```bash
-python mousemover.py
-```
-| Settings | Description |
-|----------|-------------|
-| Enable Timer | Enable and configure the timer this application will run. Disabling this will make the application runs indefinitely. |
-| Random Movement | Randomize the movement of the mouse so that it doesn't leave any pattern. |
-| Random Delay Interval | Randomize the interval between the movement. |
-| Close Button Minimize to Tray | When enabled, pressing the close button will minimize the application to system tray instead of closing it |
-
-## Preparing development environment
-
-1. Download and install Python for Windows (tested using Python 3.7.7)
-2. Using your favourite Git client, clone the repository to your development machine, eg. to `c:\projects\mousemover`
-3. Open `cmd` terminal to your project directory, eg. `c:\projects\mousemover`
-4. Create virtual environment with the command:
-   ```
-   pip -m venv venv
-   ```
-5. Activate virtual environment with the command:
-   ```
-   venv\Scripts\activate.bat
-   ```
-6. Install dependencies with the command:
-   ```
-   pip install -r requirements.txt
-   ```
-7. Test that you can run `mousemover` with the command:
-   ```
-   cd mousemover
-   python mousemover.py
-   ```
-
-## Compiling to Windows executable
-
-PyInstaller should be installed in your virtual environment folder when you execute the dependencies installation above.
-
-Execute the following command in the `mousemover` folder to compile to a standalone Windows executable 
+### macOS
 
 ```bash
-pyinstaller --clean --onefile --add-data "config.yml;." --add-data ".\resource;resource" --icon .\resource\icon.ico --windowed mousemover.py
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
 
-The executable will be available in the `dist` folder
+macOS 首次运行前，请在“系统设置 > 隐私与安全性 > 辅助功能”中允许启动程序的终端、Python 或打包后的应用控制电脑。没有权限时，程序会给出明确错误。
 
-## Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+如果 Homebrew Python 报错 `No module named '_tkinter'`，请安装与 Python 次版本一致的 Tk 组件，然后重新创建虚拟环境。例如 Python 3.14：
+
+```bash
+brew install python-tk@3.14
+```
+
+仓库同时忽略 `.venv/` 和历史环境目录 `venv/`。建议后续统一使用 `.venv/`。
+
+## 运行
+
+从项目根目录执行：
+
+```bash
+python mouse_mover.py
+```
+
+如果沿用本仓库当前的 `venv/` 环境，可直接执行：
+
+```bash
+./venv/bin/python mouse_mover.py
+```
+
+先检查配置、操作系统后端和权限，但不打开 GUI、不移动鼠标：
+
+```bash
+python mouse_mover.py --check
+```
+
+使用其他配置文件：
+
+```bash
+python mouse_mover.py --config-file path/to/config.yaml
+```
+
+点击“开始”后，设置区保持可见，底部会显示运行状态、当前阶段和实际耗时；“停止”或“取消任务”都采用同一安全取消流程。
+
+## 配置
+
+公共默认值位于根目录 [`config.yaml`](config.yaml)。本机差异可写入不提交的 `common.env`：
+
+```bash
+cp common.env.example common.env
+```
+
+支持的常用覆盖变量：
+
+```dotenv
+LOG_LEVEL=INFO
+MOUSE_MOVER_DELAY=1.0
+MOUSE_MOVER_OFFSET=20
+```
+
+`common.env` 不覆盖进程中已经存在的环境变量。配置文件支持 `${NAME:-default}` 形式的变量展开。窗口内修改只影响本次运行，不会写回配置文件。
+
+运行日志保存在 `logs/mouse_mover.log`，单文件最大 10 MB，保留 5 份备份。界面的“清空界面日志”不会删除磁盘日志。
+
+## 测试
+
+安装开发依赖及项目可编辑包后运行测试：
+
+```bash
+python -m pip install -r requirements-dev.txt
+python -m pip install -e .
+python -m unittest discover -s tests -v
+python -m flake8 mouse_mover.py logging_config.py src tests
+python -m compileall -q mouse_mover.py logging_config.py src tests
+```
+
+GUI 测试只构建隐藏窗口；在没有图形会话的 CI 中会自动跳过，不会弹出长期驻留窗口。
+
+## 打包
+
+打包工具与运行依赖分离：
+
+```bash
+python -m pip install -r requirements-build.txt
+```
+
+Windows PowerShell：
+
+```powershell
+pyinstaller --clean --onefile --windowed --name MouseMover `
+  --add-data "config.yaml;." `
+  --add-data "mousemover/resource;mousemover/resource" `
+  --icon "mousemover/resource/icon.ico" mouse_mover.py
+```
+
+macOS：
+
+```bash
+pyinstaller --clean --windowed --name MouseMover \
+  --add-data "config.yaml:." \
+  --add-data "mousemover/resource:mousemover/resource" mouse_mover.py
+```
+
+打包产物需要在对应操作系统上分别构建和验收，不能用一个平台的产物替代另一个平台。
+
+## 项目结构
+
+```text
+mouse_mover.py                 根目录 GUI 入口
+config.yaml                    公共配置
+common.env.example             本机配置示例
+logging_config.py              统一控制台与滚动文件日志
+src/mousemover/modules/        配置无关的鼠标基础能力
+src/mousemover/flows/          后台任务编排与线程事件
+src/mousemover/gui.py          Tkinter 界面
+tests/                         单元测试和隐藏窗口测试
+docs/                          项目规范与说明
+```
 
 ## License
-This project is licensed under the [MIT License](https://choosealicense.com/licenses/mit/)
+
+本项目使用 [MIT License](LICENSE.md)。

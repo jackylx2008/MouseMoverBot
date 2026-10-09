@@ -1,0 +1,65 @@
+"""Project-wide console and rotating file logging."""
+
+from __future__ import annotations
+
+import logging
+import sys
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+LOG_FORMAT = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+
+
+def setup_logger(
+    log_level: int | str = logging.INFO,
+    log_file: str | Path | None = None,
+) -> logging.Logger:
+    """Configure console output and a UTF-8 rotating log file."""
+    level = _coerce_log_level(log_level)
+    entry_name = Path(sys.argv[0]).stem or "app"
+    target = Path(log_file) if log_file else PROJECT_ROOT / "logs" / f"{entry_name}.log"
+    if not target.is_absolute():
+        target = PROJECT_ROOT / target
+    target.parent.mkdir(parents=True, exist_ok=True)
+
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level)
+    root_logger.handlers.clear()
+
+    formatter = logging.Formatter(LOG_FORMAT)
+    console = logging.StreamHandler()
+    console.setFormatter(formatter)
+    root_logger.addHandler(console)
+
+    file_handler = RotatingFileHandler(
+        target,
+        maxBytes=10 * 1024 * 1024,
+        backupCount=5,
+        encoding="utf-8",
+    )
+    file_handler.setFormatter(formatter)
+    root_logger.addHandler(file_handler)
+    return root_logger
+
+
+def get_logger(name: str | None = None) -> logging.Logger:
+    """Return a logger that uses the project-level handlers."""
+    return logging.getLogger(name)
+
+
+def configure_utf8_stdio() -> None:
+    """Use UTF-8 on terminals that support stream reconfiguration."""
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
+
+def _coerce_log_level(log_level: int | str) -> int:
+    if isinstance(log_level, int):
+        return log_level
+    level = logging.getLevelName(log_level.upper())
+    if not isinstance(level, int):
+        raise ValueError(f"未知日志级别: {log_level}")
+    return level

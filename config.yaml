@@ -1,0 +1,19 @@
+app:
+  log_level: ${LOG_LEVEL:-INFO}
+
+mouse_movement:
+  delay_seconds: ${MOUSE_MOVER_DELAY:-1.0}
+  offset_pixels: ${MOUSE_MOVER_OFFSET:-20}
+  random_movement:
+    enabled: false
+    minimum_pixels: 5
+    maximum_pixels: 40
+  random_delay:
+    enabled: false
+    minimum_seconds: 0
+    maximum_seconds: 10
+
+gui:
+  title: Mouse Mover
+  minimum_width: 720
+  minimum_height: 600
