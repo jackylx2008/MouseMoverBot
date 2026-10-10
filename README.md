@@ -96,6 +96,17 @@ python mouse_mover.py --config-file path/to/config.yaml
 
 点击“开始”后，设置区保持可见，底部会显示运行状态、当前阶段和实际耗时；“停止”或“取消任务”都采用同一安全取消流程。
 
+### macOS 与 VS Code
+
+如果 VS Code Code Runner 提示执行 `python -m pip install -r requirements.txt`，通常表示它调用了系统 Python，而不是项目虚拟环境。优先在终端使用项目解释器：
+
+```bash
+./venv/bin/python mouse_mover.py --check
+./venv/bin/python mouse_mover.py
+```
+
+Python 扩展的 “Run Python File” 与 Code Runner 使用不同的解释器配置；仅执行 “Python: Select Interpreter” 不一定会改变 Code Runner。完整的解释器选择、`.vscode/settings.json` 示例和排错命令见 [`docs/MACOS_VSCODE_SETUP.md`](docs/MACOS_VSCODE_SETUP.md)。`.vscode/` 是本机配置，已被 Git 忽略。
+
 ## 配置
 
 公共默认值位于根目录 [`config.yaml`](config.yaml)。本机差异可写入不提交的 `common.env`：
