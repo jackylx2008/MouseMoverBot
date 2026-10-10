@@ -4,7 +4,7 @@
 
 当前版本：2.0.0
 
-当前阶段：macOS 实机验证完成，等待 Windows 11 实机验收
+当前阶段：macOS 实机验收通过，等待 Windows 11 实机验收
 
 ## 已完成
 
@@ -24,6 +24,7 @@
 
 ### macOS 实机
 
+- 2026-10-10 确认应用在 macOS 上运行正常，源码启动方式实机验收通过
 - Python 3.14.8
 - Tk 9.1
 - PyYAML 6.0.3
@@ -36,6 +37,14 @@
 - Flake8、`compileall`、`pip check` 和 `git diff --check` 通过
 - wheel 构建通过
 
+### macOS 验收结论
+
+- 项目虚拟环境可正常加载运行依赖。
+- `mouse_mover.py` 可正常启动桌面窗口。
+- Quartz 鼠标移动后端工作正常。
+- 当前没有阻止 macOS 源码运行的已知问题。
+- 独立 `.app` 打包属于后续发布工作，不影响当前运行结论。
+
 ### Windows 兼容层
 
 - Win32 `GetCursorPos` / `SetCursorPos` 调用路径通过模拟测试。
@@ -46,7 +55,7 @@
 
 - 在真实 Windows 11 设备上验证 GUI 启动、开始/停止、定时和随机模式。
 - 在 Windows 多显示器及 125%/150% 缩放环境验证坐标行为。
-- 分别构建并启动 Windows `.exe` 与 macOS `.app`。
+- 分别构建并启动 Windows `.exe` 与独立 macOS `.app` 发布产物。
 - 根据实机结果补充平台截图或发布说明。
 
 ## 验收命令
