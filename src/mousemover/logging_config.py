@@ -9,7 +9,8 @@ from pathlib import Path
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-LOG_FORMAT = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+LOG_FORMAT = "[%(asctime)s] %(levelname)s %(name)s - %(message)s"
+LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
 def setup_logger(
@@ -28,7 +29,7 @@ def setup_logger(
     root_logger.setLevel(level)
     root_logger.handlers.clear()
 
-    formatter = logging.Formatter(LOG_FORMAT)
+    formatter = logging.Formatter(LOG_FORMAT, datefmt=LOG_DATE_FORMAT)
     console = logging.StreamHandler()
     console.setFormatter(formatter)
     root_logger.addHandler(console)

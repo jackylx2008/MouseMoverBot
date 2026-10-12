@@ -65,7 +65,7 @@ class MovementFlow:
         self._events.put(FlowEvent("log", "鼠标移动已启动"))
         self._logger.info("鼠标移动已启动")
         try:
-            self._mover.run(settings, self._stop_event)
+            self._mover.run(settings, self._stop_event, self._emit_movement_event)
             state = "完成" if self._timer_expired.is_set() else "已取消"
             self._events.put(FlowEvent("finished", state))
             self._events.put(FlowEvent("log", f"任务{state}"))
@@ -76,9 +76,16 @@ class MovementFlow:
         finally:
             self._stop_event.set()
 
+    def _emit_movement_event(self, kind: str, value: Any) -> None:
+        if kind == "manual_started":
+            self._logger.info("检测到人工移动，暂停自动随机移动")
+        elif kind == "manual_ended":
+            self._logger.info("人工移动结束，使用新锚点恢复随机移动")
+        self._events.put(FlowEvent(kind, value))
+
     def _report_time(self, started: float, duration: int | None) -> None:
         while not self._stop_event.wait(0.2):
-            elapsed = int(time.monotonic() - started)
+            elapsed = time.monotonic() - started
             if duration is not None and elapsed >= duration:
                 self._timer_expired.set()
                 self._stop_event.set()

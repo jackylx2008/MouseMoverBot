@@ -13,6 +13,7 @@ from mousemover.config_loader import load_config
 from mousemover.context import AppContext
 from mousemover.flows.movement_flow import FlowEvent, MovementFlow
 from mousemover.logging_config import configure_utf8_stdio, get_logger, setup_logger
+from mousemover.modules.global_hotkey import GlobalHotkeyManager
 from mousemover.modules.mouse_backend import create_mouse_backend
 from mousemover.modules.movement import MouseMover
 
@@ -56,10 +57,12 @@ def run_gui(context: AppContext, backend: object) -> int:
     root = tk.Tk()
     events: queue.Queue[FlowEvent] = queue.Queue()
     flow = MovementFlow(MouseMover(backend), events)  # type: ignore[arg-type]
-    MouseMoverWindow(root, flow, events, context.config, context.resource_dir)
+    hotkey_manager = GlobalHotkeyManager(lambda: events.put(FlowEvent("hotkey_stop")))
+    MouseMoverWindow(root, flow, hotkey_manager, events, context.config, context.resource_dir)
     try:
         root.mainloop()
     except KeyboardInterrupt:
+        hotkey_manager.stop()
         flow.cancel()
         root.destroy()
         return 130

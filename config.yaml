@@ -4,16 +4,24 @@ app:
 mouse_movement:
   delay_seconds: ${MOUSE_MOVER_DELAY:-1.0}
   offset_pixels: ${MOUSE_MOVER_OFFSET:-20}
+  movement_duration_seconds: ${MOUSE_MOVER_DURATION:-0.4}
   random_movement:
     enabled: false
     minimum_pixels: 5
     maximum_pixels: 40
+    area_width: ${RANDOM_AREA_WIDTH:-400}
+    area_height: ${RANDOM_AREA_HEIGHT:-300}
+    manual_move_threshold_pixels: ${MANUAL_MOVE_THRESHOLD:-60}
+    manual_idle_seconds: ${MANUAL_IDLE_SECONDS:-3}
   random_delay:
     enabled: false
     minimum_seconds: 0
     maximum_seconds: 10
 
+hotkeys:
+  stop: ${STOP_HOTKEY:-ctrl+option+s}
+
 gui:
   title: Mouse Mover
   minimum_width: 720
-  minimum_height: 600
+  minimum_height: 700

@@ -9,6 +9,7 @@ description = "Cross-platform mouse movement utility for Windows and macOS"
 requires-python = ">=3.10"
 dependencies = [
   "PyYAML>=6.0.2,<7",
+  "pynput>=1.8,<2",
   "pyobjc-framework-Quartz>=10.3; sys_platform == 'darwin'",
 ]
 
