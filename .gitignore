@@ -20,4 +20,7 @@ common.env
 /build/
 /dist/
 *.spec
+!MouseMover.spec
+MouseMover.app/
+dot_vscode.zip
 ui/command.txt

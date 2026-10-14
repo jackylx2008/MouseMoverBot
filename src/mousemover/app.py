@@ -46,6 +46,8 @@ def main(argv: list[str] | None = None) -> int:
         return run_gui(context, backend)
     except Exception as exc:
         print(f"Mouse Mover 启动失败：{exc}", file=sys.stderr)
+        if not args.check:
+            _show_startup_error(str(exc))
         return 1
 
 
@@ -74,3 +76,17 @@ def _set_windows_app_id() -> None:
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(  # type: ignore[attr-defined]
             "MouseMover.CrossPlatform.2"
         )
+
+
+def _show_startup_error(message: str) -> None:
+    """Show startup failures that would otherwise be invisible in a windowed bundle."""
+    try:
+        import tkinter as tk
+        from tkinter import messagebox
+
+        root = tk.Tk()
+        root.withdraw()
+        messagebox.showerror("Mouse Mover 启动失败", message, parent=root)
+        root.destroy()
+    except Exception:
+        pass

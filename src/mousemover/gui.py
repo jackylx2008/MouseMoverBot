@@ -41,12 +41,12 @@ class FlashingRectangleOverlay:
         y = round(float(area["y"]))
         width = max(self._BORDER_WIDTH * 2, round(float(area["width"])))
         height = max(self._BORDER_WIDTH * 2, round(float(area["height"])))
-        border = self._BORDER_WIDTH
-        geometries = (
-            (width, border, x, y),
-            (width, border, x, y + height - border),
-            (border, height, x, y),
-            (border, height, x + width - border, y),
+        geometries = _rectangle_border_geometries(
+            x,
+            y,
+            width,
+            height,
+            self._BORDER_WIDTH,
         )
         for window, geometry in zip(self._windows, geometries, strict=True):
             window.geometry(_window_geometry(*geometry))
@@ -215,7 +215,7 @@ class MouseMoverWindow:
         ttk.Label(parent, text="单程移动耗时（秒）").grid(row=1, column=0, sticky="w", pady=(10, 0))
         self._entry(parent, self.movement_duration_var, 1, 1)
 
-        ttk.Checkbutton(parent, text="随机移动距离", variable=self.random_movement_var).grid(
+        ttk.Checkbutton(parent, text="启用随机范围移动", variable=self.random_movement_var).grid(
             row=2, column=0, sticky="w", pady=(10, 0)
         )
         self._entry(parent, self.min_pixels_var, 2, 1)
@@ -279,14 +279,14 @@ class MouseMoverWindow:
         self.delay_var.set(str(movement.get("delay_seconds", 1.0)))
         self.offset_var.set(str(movement.get("offset_pixels", 20)))
         self.movement_duration_var.set(str(movement.get("movement_duration_seconds", 0.4)))
-        self.random_movement_var.set(bool(random_movement.get("enabled", False)))
+        self.random_movement_var.set(bool(random_movement.get("enabled", True)))
         self.min_pixels_var.set(str(random_movement.get("minimum_pixels", 5)))
         self.max_pixels_var.set(str(random_movement.get("maximum_pixels", 40)))
-        self.area_width_var.set(str(random_movement.get("area_width", 400)))
-        self.area_height_var.set(str(random_movement.get("area_height", 300)))
+        self.area_width_var.set(str(random_movement.get("area_width", 800)))
+        self.area_height_var.set(str(random_movement.get("area_height", 600)))
         self.manual_threshold_var.set(str(random_movement.get("manual_move_threshold_pixels", 60)))
         self.manual_idle_var.set(str(random_movement.get("manual_idle_seconds", 3)))
-        self.random_delay_var.set(bool(random_delay.get("enabled", False)))
+        self.random_delay_var.set(bool(random_delay.get("enabled", True)))
         self.min_delay_var.set(str(random_delay.get("minimum_seconds", 0)))
         self.max_delay_var.set(str(random_delay.get("maximum_seconds", 10)))
         self.stop_hotkey_var.set(str(self.config.get("hotkeys", {}).get("stop", "ctrl+option+s")))
@@ -441,6 +441,10 @@ class MouseMoverWindow:
                 )
             else:
                 self._area_initialized = True
+                self._append_log(
+                    f"随机移动范围已显示：锚点 ({anchor_x:.0f}, {anchor_y:.0f})，"
+                    f"{event.value['width']:.0f} × {event.value['height']:.0f} 像素"
+                )
         elif event.kind == "manual_started":
             self._manual_active = True
             self.status_var.set("人工操作")
@@ -452,7 +456,6 @@ class MouseMoverWindow:
                 value=100,
                 style="Yellow.Horizontal.TProgressbar",
             )
-            self.area_overlay.hide()
             self._append_log("检测到人工大幅移动，已暂停自动随机移动")
         elif event.kind == "manual_ended":
             self._manual_active = False
@@ -532,3 +535,20 @@ def _format_seconds(seconds: int) -> str:
 
 def _window_geometry(width: int, height: int, x: int, y: int) -> str:
     return f"{width}x{height}{x:+d}{y:+d}"
+
+
+def _rectangle_border_geometries(
+    x: int,
+    y: int,
+    width: int,
+    height: int,
+    border: int,
+) -> tuple[tuple[int, int, int, int], ...]:
+    """Return four touching border segments without overlapping corners."""
+    inner_height = max(1, height - (border * 2))
+    return (
+        (width, border, x, y),
+        (width, border, x, y + height - border),
+        (border, inner_height, x, y + border),
+        (border, inner_height, x + width - border, y + border),
+    )

@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import ctypes
+import sys
 import unittest
 from unittest.mock import patch
 
-from mousemover.modules.mouse_backend import WindowsMouseBackend, create_mouse_backend
+from mousemover.modules.mouse_backend import MacOSMouseBackend, WindowsMouseBackend, create_mouse_backend
 
 
 class FakeUser32:
@@ -24,6 +25,25 @@ class FakeUser32:
 
 
 class MouseBackendTests(unittest.TestCase):
+    def test_macos_backend_requests_missing_accessibility_permission(self) -> None:
+        class FakeQuartz:
+            requested = False
+
+            @classmethod
+            def CGPreflightPostEventAccess(cls) -> bool:
+                return False
+
+            @classmethod
+            def CGRequestPostEventAccess(cls) -> bool:
+                cls.requested = True
+                return False
+
+        with patch("mousemover.modules.mouse_backend.platform.system", return_value="Darwin"):
+            with patch.dict(sys.modules, {"Quartz": FakeQuartz}):
+                with self.assertRaisesRegex(RuntimeError, "重新打开应用"):
+                    MacOSMouseBackend()
+        self.assertTrue(FakeQuartz.requested)
+
     def test_windows_backend_uses_native_coordinates(self) -> None:
         user32 = FakeUser32()
         fake_windll = type("FakeWindll", (), {"user32": user32})()

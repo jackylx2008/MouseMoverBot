@@ -24,8 +24,8 @@ class MovementSettings:
     random_delay: bool = False
     minimum_delay_seconds: float = 0
     maximum_delay_seconds: float = 10
-    random_area_width: int = 400
-    random_area_height: int = 300
+    random_area_width: int = 800
+    random_area_height: int = 600
     manual_move_threshold_pixels: int = 60
     manual_idle_seconds: float = 3
     duration_seconds: int | None = None

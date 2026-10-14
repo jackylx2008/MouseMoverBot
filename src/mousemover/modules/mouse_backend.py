@@ -52,8 +52,13 @@ class MacOSMouseBackend:
             ) from exc
         self._quartz = Quartz
         if hasattr(Quartz, "CGPreflightPostEventAccess") and not Quartz.CGPreflightPostEventAccess():
+            if hasattr(Quartz, "CGRequestPostEventAccess"):
+                Quartz.CGRequestPostEventAccess()
+            if Quartz.CGPreflightPostEventAccess():
+                return
             raise RuntimeError(
-                "macOS 尚未授权辅助功能。请在“系统设置 > 隐私与安全性 > 辅助功能”中允许当前终端或应用。"
+                "macOS 尚未授权辅助功能。请在“系统设置 > 隐私与安全性 > 辅助功能”中允许 "
+                "MouseMover 或当前启动程序，然后重新打开应用。"
             )
 
     def position(self) -> tuple[float, float]:

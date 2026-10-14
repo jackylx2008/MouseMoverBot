@@ -6,10 +6,11 @@ from pathlib import Path
 
 try:
     import tkinter as tk
-    from mousemover.gui import MouseMoverWindow, _window_geometry
+    from mousemover.gui import MouseMoverWindow, _rectangle_border_geometries, _window_geometry
 except (ImportError, ModuleNotFoundError):
     tk = None  # type: ignore[assignment]
     MouseMoverWindow = None  # type: ignore[assignment,misc]
+    _rectangle_border_geometries = None  # type: ignore[assignment,misc]
     _window_geometry = None  # type: ignore[assignment,misc]
 
 from mousemover.flows.movement_flow import FlowEvent
@@ -59,6 +60,10 @@ class GuiBuildTests(unittest.TestCase):
             )
             self.assertEqual(window.status_var.get(), "就绪")
             self.assertEqual(window.movement_duration_var.get(), "0.4")
+            self.assertTrue(window.random_movement_var.get())
+            self.assertTrue(window.random_delay_var.get())
+            self.assertEqual(window.area_width_var.get(), "800")
+            self.assertEqual(window.area_height_var.get(), "600")
             self.assertEqual(window.hotkey_status_var.get(), "已启用")
             first_log_line = window.log_text.get("1.0", "2.0").strip()
             self.assertRegex(
@@ -83,7 +88,7 @@ class GuiBuildTests(unittest.TestCase):
             window._handle_event(FlowEvent("manual_started", {"position": (200, 300)}))
             self.assertEqual(str(window.progress.cget("style")), "Yellow.Horizontal.TProgressbar")
             self.assertEqual(float(window.progress.cget("value")), 100)
-            self.assertIsNone(window.area_overlay._after_id)
+            self.assertIsNotNone(window.area_overlay._after_id)
             window._handle_event(FlowEvent("manual_ended", {"position": (220, 320)}))
             self.assertEqual(str(window.progress.cget("style")), "Green.Horizontal.TProgressbar")
             window._handle_event(FlowEvent("hotkey_stop"))
@@ -98,6 +103,18 @@ class GuiBuildTests(unittest.TestCase):
     @unittest.skipIf(_window_geometry is None, "Tkinter 不可用")
     def test_overlay_geometry_supports_negative_coordinates(self) -> None:
         self.assertEqual(_window_geometry(400, 4, -200, 100), "400x4-200+100")  # type: ignore[misc]
+
+    @unittest.skipIf(_rectangle_border_geometries is None, "Tkinter 不可用")
+    def test_overlay_segments_form_closed_frame_without_corner_overlap(self) -> None:
+        self.assertEqual(
+            _rectangle_border_geometries(100, 100, 400, 300, 4),  # type: ignore[misc]
+            (
+                (400, 4, 100, 100),
+                (400, 4, 100, 396),
+                (4, 292, 100, 104),
+                (4, 292, 496, 104),
+            ),
+        )
 
 
 if __name__ == "__main__":

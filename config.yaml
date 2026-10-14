@@ -6,15 +6,15 @@ mouse_movement:
   offset_pixels: ${MOUSE_MOVER_OFFSET:-20}
   movement_duration_seconds: ${MOUSE_MOVER_DURATION:-0.4}
   random_movement:
-    enabled: false
+    enabled: true
     minimum_pixels: 5
     maximum_pixels: 40
-    area_width: ${RANDOM_AREA_WIDTH:-400}
-    area_height: ${RANDOM_AREA_HEIGHT:-300}
+    area_width: ${RANDOM_AREA_WIDTH:-800}
+    area_height: ${RANDOM_AREA_HEIGHT:-600}
     manual_move_threshold_pixels: ${MANUAL_MOVE_THRESHOLD:-60}
     manual_idle_seconds: ${MANUAL_IDLE_SECONDS:-3}
   random_delay:
-    enabled: false
+    enabled: true
     minimum_seconds: 0
     maximum_seconds: 10
 

@@ -6,10 +6,20 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from mousemover.logging_config import setup_logger
+from mousemover.logging_config import _default_log_file, setup_logger
 
 
 class LoggingConfigTests(unittest.TestCase):
+    def test_frozen_macos_log_is_outside_app_bundle(self) -> None:
+        self.assertEqual(
+            _default_log_file(
+                frozen=True,
+                platform_name="darwin",
+                home=Path("/Users/tester"),
+            ),
+            Path("/Users/tester/Library/Logs/MouseMover/mouse_mover.log"),
+        )
+
     def test_file_log_uses_timestamp(self) -> None:
         root_logger = logging.getLogger()
         previous_handlers = root_logger.handlers[:]
